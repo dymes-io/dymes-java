@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: Copyright © 2025 The Dymes project authors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Protect the protection
+/.github/CODEOWNERS @dymes-io/java
+
+# Catch-all
+* @dymes-io/java
+
+# Java Client
+/dymes-java-client/ @dymes-io/java-client

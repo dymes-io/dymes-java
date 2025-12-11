@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: Copyright © 2025 The Dymes project authors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+client:
+  http-uri: http://localhost:46510
+
+telemetry:
+  otel:
+    service:
+      name: dymes-client
+    traces:
+      exporter: logging
+#      exporter: logging-otlp

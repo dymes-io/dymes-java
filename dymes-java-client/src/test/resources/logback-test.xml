@@ -1,0 +1,22 @@
+<!--
+SPDX-FileCopyrightText: Copyright © 2025 The Dymes project authors
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<configuration debug="true" scan="false">
+    <!--    Set up logging to console -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level [%-40.40logger{40}] \(%-30.30thread\) &lt;%X&gt; %msg%n</pattern>
+        </encoder>
+    </appender>
+    <!--    Set root logger level to INFO -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <!--  We're testing dymes, let's see its TRACE messages -->
+    <logger name="io.dymes" level="TRACE"/>
+
+</configuration>

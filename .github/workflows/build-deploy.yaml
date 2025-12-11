@@ -1,0 +1,53 @@
+# SPDX-FileCopyrightText: Copyright © 2025 The Dymes project authors
+#
+# SPDX-License-Identifier: Apache-2.0
+name: Build and deploy Java packages
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  DOCKER_REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  java-build-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+          cache: 'maven'
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Java packages
+        id: java-build
+        run: mvn --batch-mode --no-transfer-progress clean install
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DYMES_TAG: main
+
+      - name: Deploy Java packages
+        id: java-deploy-step
+        if: github.event_name != 'pull_request'
+        run: mvn --batch-mode --no-transfer-progress -DskipTests=true clean deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

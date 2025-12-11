@@ -1,0 +1,4 @@
+[submodule "dymes"]
+	path = dymes
+	url = git@github.com:dymes-io/dymes.git
+	branch = main
