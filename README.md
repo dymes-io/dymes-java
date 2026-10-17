@@ -73,6 +73,53 @@ public class AppendMessage {
 }
 ```
 
+### Appending messages in a batch
+
+Many messages in order, stored and synchronized once by the node (`POST /api/v1/messages/batch`, Dymes `7f53dd9` or
+later). A message may correlate to an earlier one of the same batch by its index, since its id is assigned in the
+batch. Batches above the node's limits (1,000 messages, 8 MiB) are sent in several requests.
+
+```java
+import io.helidon.config.Config;
+import io.helidon.config.ConfigSources;
+
+import java.util.List;
+import java.util.Map;
+
+import com.github.f4b6a3.ulid.Ulid;
+import io.dymes.client.DymesClient;
+import io.dymes.client.append.BatchMessage;
+import io.dymes.exceptions.UnsupportedRequestException;
+
+public class AppendBatch {
+    public List<Ulid> appendBatch() {
+        final var clientConfig = Config.builder(ConfigSources.create(Map.of("http-uri", "http://localhost:6510"))
+                                                             .build()).build();
+        try (final var client = DymesClient.of(clientConfig)) {
+            return client
+                    .appendBatch()
+                    .add(BatchMessage.builder().withChannel(702).withRouting(1).withPayload("job started").build())
+                    .add(BatchMessage.builder().withChannel(702).withRouting(2).withPayload("record 1")
+                                     .withHeader("black cat", "Felis Domesticus")
+                                     .withCorrelationIndex(0)   // correlates to "job started"
+                                     .build())
+                    .add(BatchMessage.builder().withChannel(702).withRouting(2).withPayload("record 2")
+                                     .withCorrelationIndex(0)
+                                     .build())
+                    .commit();                                  // the ids, in the order added
+        } catch (UnsupportedRequestException e) {
+            // An older or a clustered node: append the messages one at a time instead.
+            throw e;
+        }
+    }
+}
+```
+
+- **`UnsupportedRequestException`**: the node has no batch append (an older node answers 404, a clustered one 501).
+- **`PartialAppendException`**: the batch failed after some messages were stored; they stay, and `appended()` lists
+  them, so the caller can repair.
+- **`IllegalRequestException`**: the node refused the batch; nothing was stored.
+
 ### Querying a single message
 
 ```java

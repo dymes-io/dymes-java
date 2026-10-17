@@ -5,6 +5,7 @@
 package io.dymes.client;
 
 import io.dymes.client.append.AppendRequest;
+import io.dymes.client.append.BatchAppendRequest;
 import io.dymes.client.query.QueryBuilder;
 
 /**
@@ -18,6 +19,13 @@ public interface Dymes {
      * @return Append request
      */
     AppendRequest append();
+
+    /**
+     * Allows fluent creation of a Dymes batch append request: many messages stored in order and synchronized once.
+     *
+     * @return Batch append request
+     */
+    BatchAppendRequest appendBatch();
 
     /**
      * Allows fluent creation of a Dymes query request.

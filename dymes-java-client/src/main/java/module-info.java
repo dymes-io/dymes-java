@@ -12,6 +12,7 @@ module dymes.client {
     exports io.dymes.client.dto;
     exports io.dymes.client.msg;
     exports io.dymes.client.query;
+    exports io.dymes.exceptions;
 
     requires transitive dymes.model;
 
