@@ -39,7 +39,8 @@ public record BatchMessage(@Nullable Ulid correlationId,
         requireNonNull(channel, "Channel required");
         requireNonNull(routing, "Routing required");
         requireNonNull(payload, "Payload required");
-        headers = Map.copyOf(requireNonNull(headers, "Headers required"));
+        // In the order given (Map.copyOf would lose it), and unmodifiable.
+        headers = java.util.Collections.unmodifiableMap(new LinkedHashMap<>(requireNonNull(headers, "Headers required")));
         if (correlationId != null && correlationIndex != null) {
             throw new IllegalStateException("At most one of a correlation id and a correlation index");
         }
@@ -48,11 +49,11 @@ public record BatchMessage(@Nullable Ulid correlationId,
         }
     }
 
-    /** Approximate size of the message's frame, for the size limits. */
+    /** Approximate size of the message's frame in bytes (UTF-8), for the size limits. */
     int estimatedSize() {
         var size = 128 + payload.getBytes(UTF_8).length;
         for (var header : headers.entrySet()) {
-            size += 16 + header.getKey().length() + header.getValue().length();
+            size += 16 + header.getKey().getBytes(UTF_8).length + header.getValue().getBytes(UTF_8).length;
         }
         return size;
     }

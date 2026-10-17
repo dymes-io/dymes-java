@@ -107,4 +107,21 @@ class DymesBatchAppenderTest {
                                              .withCorrelationIndex(0).withCorrelationId(new Ulid(1, 1)).build())
                 .isInstanceOf(IllegalStateException.class);
     }
+
+    @Test
+    void headersKeepTheirOrder() {
+        final var message = BatchMessage.builder().withChannel(5).withRouting(1).withPayload("p")
+                                        .withHeader("z", "1").withHeader("a", "2").withHeader("m", "3").build();
+        assertThat(message.headers().keySet()).containsExactly("z", "a", "m");
+        assertThatThrownBy(() -> message.headers().put("x", "y")).isInstanceOf(UnsupportedOperationException.class);
+    }
+
+    @Test
+    void sizesAreCountedInBytes() {
+        // 700,000 characters of 3 bytes each: about 2 MiB in UTF-8, though under it in characters.
+        final var wide = "€".repeat(700_000);
+        assertThatThrownBy(() -> BatchMessage.builder().withChannel(5).withRouting(1).withPayload("p")
+                                             .withHeader("h", wide).build())
+                .isInstanceOf(IllegalArgumentException.class);
+    }
 }
