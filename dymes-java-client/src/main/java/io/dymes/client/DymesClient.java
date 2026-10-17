@@ -14,6 +14,8 @@ import io.helidon.webclient.tracing.WebClientTracing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.dymes.client.append.AppendRequest;
+import io.dymes.client.append.BatchAppendRequest;
+import io.dymes.client.append.DymesBatchAppender;
 import io.dymes.client.append.DymesAppender;
 import io.dymes.client.query.*;
 
@@ -78,6 +80,11 @@ public class DymesClient implements Dymes, AutoCloseable {
     @Override
     public AppendRequest append() {
         return DymesAppender.of(this.httpClient);
+    }
+
+    @Override
+    public BatchAppendRequest appendBatch() {
+        return DymesBatchAppender.of(this.httpClient);
     }
 
     @Override
